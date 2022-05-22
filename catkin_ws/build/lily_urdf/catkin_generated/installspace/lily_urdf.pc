@@ -1,0 +1,8 @@
+prefix=/home/sanjeev/catkin_ws/install
+
+Name: lily_urdf
+Description: Description of lily_urdf
+Version: 1.0.0
+Cflags: 
+Libs: -L${prefix}/lib 
+Requires: 

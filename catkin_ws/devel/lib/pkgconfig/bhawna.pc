@@ -1,0 +1,8 @@
+prefix=/home/sanjeev/catkin_ws/devel
+
+Name: bhawna
+Description: Description of bhawna
+Version: 0.0.0
+Cflags: 
+Libs: -L${prefix}/lib 
+Requires: 

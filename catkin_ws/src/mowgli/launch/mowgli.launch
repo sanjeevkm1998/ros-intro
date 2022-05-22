@@ -1,0 +1,182 @@
+<?xml version="1.0"?>
+<launch>
+
+  <param name="robot_description" command="cat '$(find mowgli)/urdf/mowgli.xacro'"/>
+
+  <!-- send fake joint values -->
+  <node name="joint_state_publisher" pkg="joint_state_publisher" type="joint_state_publisher">
+    <param name="use_gui" value="False"/>
+  </node>
+
+
+<!--static_transform_publisher x y z qx qy qz qw frame_id child_frame_id-->
+
+  <node pkg="tf" type="static_transform_publisher" name="world_frame_base_link_broadcaster" args="1 0 0 0 0 0 world map 100"/>
+
+
+  <node name="base_link2laser_scanner" pkg="tf" type="static_transform_publisher" args="0 0 0.08 0 0 0  /base_link /laser_scanner 100"/>
+  
+ <!-- <node name="dummy2map" pkg="tf" type="static_transform_publisher" args="0 0 0 0 0 0  /dummy /map 100"/> -->
+  
+ <!-- <node name="odom2base_link" pkg="tf" type="static_transform_publisher" args="0 0 0 0 0 0  /odom /base_link 100"/>
+  
+  
+  -->
+  
+  
+  <!--<node pkg="tf" type="static_transform_publisher" name="world_frame_base_link_broadcaster" args="1 0 0 0 0 0 world map 100"/> -->
+  
+   
+   
+  
+
+  <!-- Combine joint values -->
+ <node name="robot_state_publisher" pkg="robot_state_publisher" type="robot_state_publisher" />
+ 
+ 
+ 
+ 
+ 
+ 
+ <!--<node pkg="sensor_node_pkg" type="sensor_node_type" name="sensor_node_name" output="screen">
+    <param name="sensor_param" value="param_value" />
+ </node>
+ <node pkg="odom_node_pkg" type="odom_node_type" name="odom_node" output="screen">
+    <param name="odom_param" value="param_value" />
+ </node>
+ <node pkg="transform_configuration_pkg" type="transform_configuration_type" name="transform_configuration_name" output="screen">
+    <param name="transform_configuration_param" value="param_value" />
+ </node>-->
+ 
+ 
+  
+   <arg name="world" default="empty"/> 
+  <arg name="paused" default="false"/>
+  <arg name="use_sim_time" default="true"/>
+  <arg name="gui" default="true"/>
+  <arg name="headless" default="false"/>
+  <arg name="debug" default="false"/>
+  
+  <include file="$(find gazebo_ros)/launch/empty_world.launch">
+    <!--arg name="world_name" value="$(find mowgli)/worlds/mowgli.world"/-->
+    <arg name="world_name" value="$(find mowgli)/worlds/myHotel.world"/>
+    <arg name="paused" value="$(arg paused)"/>
+    <arg name="use_sim_time" value="$(arg use_sim_time)"/>
+    <arg name="gui" value="$(arg gui)"/>
+    <arg name="headless" value="$(arg headless)"/>
+    <arg name="debug" value="$(arg debug)"/>
+  </include>
+
+  
+  <node pkg="robot_pose_ekf" type="robot_pose_ekf" name="robot_pose_ekf">
+    <param name="output_frame" value="odom"/>
+    <param name="freq" value="30.0"/>
+    <param name="sensor_timeout" value="1.0"/>
+    <param name="odom_used" value="true"/>
+    <param name="imu_used" value="true"/>
+    <param name="vo_used" value="true"/>
+    <param name="debug" value="false"/>
+    <param name="self_diagnose" value="false"/>
+  </node>
+  
+
+  <node name="mowgli_spawn" pkg="gazebo_ros" type="spawn_model" output="screen"
+   args="-urdf -param robot_description -model mowgli" />
+
+<node pkg="teleop_twist_keyboard" type="teleop_twist_keyboard.py" name="teleop_twist_keyboard" output="screen"/>
+     <!--<node pkg="rviz" type="rviz" name="rviz"/>-->
+     
+     <node name="rviz" pkg="rviz" type="rviz" args="-d $(find mowgli)/rviz/mowgli_map_built.rviz"/>
+     
+     
+     
+     <!-- <node pkg="rviz" type="rviz" name="rviz"/>   -->
+     
+
+
+
+	<!-- <include file="$(find ydlidar)/launch/lidar.launch" />
+  <node name="rviz" pkg="rviz" type="rviz" args="-d $(find ydlidar)/launch/lidar.rviz" /> -->
+
+    <node pkg="gmapping" type="slam_gmapping" name="gmapping">
+      <param name="base_frame" value="base_link" />
+      <param name="map_frame" value="map" />      
+      <param name="odom_frame" value="odom" />
+      <param name="delta" value="0.05" />      
+      <param name="map_update_interval" value="5.0"/>
+      <param name="maxUrange" value="80.0"/>
+      <param name="sigma" value="0.05"/>
+      <param name="kernelSize" value="1"/>
+      <param name="lstep" value="0.05"/>
+      <param name="astep" value="0.05"/>
+      <param name="iterations" value="5"/>
+      <param name="lsigma" value="0.075"/>
+      <param name="ogain" value="3.0"/>
+      <param name="lskip" value="0"/>      
+      <param name="minimumScore" value="0.0"/>      
+      <param name="srr" value="0.1"/>
+      <param name="srt" value="0.2"/>
+      <param name="str" value="0.1"/>
+      <param name="stt" value="0.2"/>
+      <param name="linearUpdate" value="1.0"/>
+      <param name="angularUpdate" value="0.5"/>
+      <param name="temporalUpdate" value="-1.0"/>
+      <param name="resampleThreshold" value="0.5"/>
+      <param name="particles" value="30"/>
+       <param name="xmin" value="-100.0"/>
+      <param name="ymin" value="-100.0"/>
+      <param name="xmax" value="100.0"/>
+      <param name="ymax" value="100.0"/>
+      <param name="delta" value="0.05"/>
+      <param name="llsamplerange" value="0.01"/>
+      <param name="llsamplestep" value="0.01"/>
+      <param name="lasamplerange" value="0.005"/>
+      <param name="lasamplestep" value="0.005"/>
+      <param name="transform_publish_period" value="0.05"/>
+      <param name="occ_thresh" value="0.25"/>
+      <param name="maxRange" value="30"/>      
+      <remap from="scan" to="scan"/>
+    </node>
+  
+
+
+
+
+
+ <node pkg="move_base" type="move_base" name="move_base" output="screen">
+ 
+      <rosparam file="$(find mowgli)/config/minimal.yaml" command="load" ns="/costmap_node/costmap" />
+ 
+      <rosparam file="$(find mowgli)/config/local_costmap_params.yaml" command="load" />
+      <rosparam file="$(find mowgli)/config/global_costmap_params.yaml" command="load" />
+      <rosparam file="$(find mowgli)/config/costmap_common_params.yaml" command="load" ns="global_costmap"/>
+      <rosparam file="$(find mowgli)/config/costmap_common_params.yaml" command="load" ns="local_costmap"/>
+      
+      <rosparam file="$(find mowgli)/config/trajectory_planner.yaml" command="load" />
+     <remap from="cmd_vel" to="cmd_vel"/>
+     <remap from="odom" to="odom"/>
+     <remap from="scan" to="mowgli/laser/scan"/>
+     <param name="move_base/DWAPlannerROS/yaw_goal_tolerance" value="1.0"/>
+     <param name="move_base/DWAPlannerROS/xy_goal_tolerance" value="1.0"/>
+     <param name="controller_frequency" value="20.0"/>
+     <param name="planner_patience" value="5.0"/>
+     <param name="controller_patience" value="15.0"/>
+     <param name="conservative_reset_dist" value="3.0"/>
+     <param name="recovery_behavior_enabled" value="true"/>
+     <param name="clearing_rotation_allowed" value="true"/>
+     <param name="shutdown_costmaps" value="false"/>
+     <param name="oscillation_timeout" value="0.0"/>
+     <param name="oscillation_distance " value="0.5"/>
+     <param name="planner_frequency" value="0.0"/>
+     <param name="max_planning_retries" value="-1"/>
+     <param name="oscillation_timeout" value="0.0"/>
+     
+     
+     
+     
+     
+     
+ </node>
+ 
+ 
+</launch>

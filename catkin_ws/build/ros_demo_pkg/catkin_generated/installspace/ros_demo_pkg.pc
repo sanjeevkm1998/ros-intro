@@ -1,0 +1,8 @@
+prefix=/home/sanjeev/catkin_ws/install
+
+Name: ros_demo_pkg
+Description: Description of ros_demo_pkg
+Version: 0.0.0
+Cflags: -I${prefix}/include
+Libs: -L${prefix}/lib -lros_demo_pkg
+Requires: roscpp std_msgs

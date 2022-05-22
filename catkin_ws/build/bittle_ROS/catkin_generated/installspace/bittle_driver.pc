@@ -1,0 +1,8 @@
+prefix=/home/sanjeev/catkin_ws/install
+
+Name: bittle_driver
+Description: Description of bittle_driver
+Version: 0.1.0
+Cflags: 
+Libs: -L${prefix}/lib 
+Requires: 
